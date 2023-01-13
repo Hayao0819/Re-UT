@@ -1,0 +1,2 @@
+## Mozc Re-UT Dictionary
+
