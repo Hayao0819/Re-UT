@@ -88,6 +88,10 @@ download_file(){
         return 1
     }
     output="${work_dir}/$(basename "$url")"
+    if [[ -e "${output}" ]]; then
+        echo "${output}"
+        return 0
+    fi
     msg_info "Downloading ${url} to ${output} ..."
     curl -sfL -o "${output}" "$url" || {
         msg_error "download_file: Failed to download ${url}"
