@@ -53,6 +53,40 @@ get_dict(){
 
 }
 
-original_csv="$(get_dict)"
 
+convert_dic(){
+    local csv_path="$1" current_process=0
+    while read -r raw_csv; do
+        if [[ "${current_process}" -ge 8192 ]]; then
+            wait
+            current_process=0
+        fi
+        current_process="$((current_process + 1))"
+        convert_oneline_dic "${raw_csv}" >> "${work_dir}/dic.txt" &
+    done < "${csv_path}"
+}
 
+# めちゃくちゃ遅いのでGoで書き直す
+convert_oneline_dic(){
+    local yomi tango raw_csv="$1" id cost
+    local parsed_csv=()
+    readarray -t parsed_csv < <(tr "," "\n" <<< "$raw_csv")
+    yomi="$(kata2hira "${parsed_csv[11]}")"
+    tango="$(sed "s|^#||g" <<< "${parsed_csv[10]}")"
+    cost="${parsed_csv[2]}"
+    id="$(get_id "${raw_csv}")"
+    write_string "${work_dir}/dic.txt" "$(echo -e "${yomi}\t${id}\t${id}\t${cost}\t${tango}")"
+}
+
+get_id(){
+    local target_rawcsv="$1" target_csv
+    target_csv="$(cut -d "," -f 5,6,7,8  <<< "$target_rawcsv")"
+
+    get_iddef | grep -E "[0-9]* ${target_csv}.*" | cut -d " " -f 1 | head -n 1
+}
+
+main(){
+    convert_dic "$(get_dict)"
+}
+
+main

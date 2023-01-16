@@ -2,9 +2,10 @@
 
 current_dir="${current_dir-"$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"}"
 project_dir="$current_dir/.."
+export CHILD_MAX=5
 
 check_tools(){
-    local tools=("jq" "curl" "git")
+    local tools=("jq" "curl" "git" "nkf")
     for tool in "${tools[@]}"; do
         if ! command -v "${tool}" >/dev/null 2>&1; then
             echo "Error: ${tool} is not installed." >&2
@@ -99,4 +100,21 @@ download_file(){
     }
     echo "${output}"
     return 0
+}
+
+hira2kata(){
+    nkf -w --katakana <<< "$*"
+}
+
+kata2hira(){
+    nkf -w --hiragana <<< "$*"
+}
+
+get_iddef(){
+    cat "$(download_file "$(make_workdir "$0")" "https://raw.githubusercontent.com/google/mozc/master/src/data/dictionary_oss/id.def")"
+}
+
+write_string(){
+    local lockfile="$1" targetfile="$1" text="$2"
+    echo "$text" >> "$targetfile"
 }
