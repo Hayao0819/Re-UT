@@ -54,15 +54,15 @@ printary(){
 }
 
 msg_info(){
-    echo -e "${ascii_green}[INFO]${ascii_reset} $*"
+    echo -e "${ascii_green}[INFO]${ascii_reset} $*" >&2
 }
 
 msg_warn(){
-    echo -e "${ascii_yellow}[WARN]${ascii_reset} $*"
+    echo -e "${ascii_yellow}[WARN]${ascii_reset} $*" >&2
 }
 
 msg_error(){
-    echo -e "${ascii_red}[ERROR]${ascii_reset} ${*}"
+    echo -e "${ascii_red}[ERROR]${ascii_reset} ${*}" >&2
 }
 
 # make_workdir "$0"
@@ -70,12 +70,29 @@ make_workdir(){
     local baseworkdir="${project_dir}/build"
     local script_name="${1-""}"
     [[ -n "$script_name" ]] || {
-        msg_error "make_workdir: No argument"
+        msg_error "make_workdir: Missing argument"
         return 1
     }
     script_name="$(basename "$script_name")"
     local workdir="${baseworkdir}/${script_name}"
     mkdir -p "${workdir}"
     echo "${workdir}"
+    return 0
+}
+
+# download_file <work> <url>
+download_file(){
+    local output work_dir="${1-""}"  url="${2-""}"
+    { [[ -n "${url}" ]] && [[ -n "${work_dir}" ]]; } || {
+        msg_error "download_file: No url"
+        return 1
+    }
+    output="${work_dir}/$(basename "$url")"
+    msg_info "Downloading ${url} to ${output} ..."
+    curl -sfL -o "${output}" "$url" || {
+        msg_error "download_file: Failed to download ${url}"
+        return 1
+    }
+    echo "${output}"
     return 0
 }
