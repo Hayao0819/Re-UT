@@ -55,37 +55,17 @@ get_dict(){
 
 }
 
-
 convert_dic(){
-    local csv_path="$1" current_process=0
-    while read -r raw_csv; do
-        if [[ "${current_process}" -ge 8192 ]]; then
-            wait
-            current_process=0
-        fi
-        current_process="$((current_process + 1))"
-        convert_oneline_dic "${raw_csv}" >> "${work_dir}/dic.txt"
-    done < "${csv_path}"
+    local csv_path="$1"
+    parallel -k -j 500% --progress "$golang_binary" "$(get_iddef_path)" {}  < "${csv_path}" > "${work_dir}/dic.txt"
+
+    #xargs -P5 -L1 -I{} "$golang_binary" "$(get_iddef_path)" "{}" < "${csv_path}" #> "${work_dir}/dic.txt"
+
+    #while read -r raw_csv; do
+    #    "$golang_binary" "$(get_iddef_path)" "${raw_csv}" >> "${work_dir}/dic.txt"
+    #done < "${csv_path}"
 }
 
-# ~~めちゃくちゃ遅いのでGoで書き直す~~
-# 書き直したけどやっぱり遅いので、convert_dicそのものを書き直して並列処理をGoでやらせます
-convert_oneline_dic_old(){
-    local yomi tango raw_csv="$1" id cost
-    local parsed_csv=()
-    readarray -t parsed_csv < <(tr "," "\n" <<< "$raw_csv")
-    yomi="$(kata2hira "${parsed_csv[11]}")"
-    tango="$(sed "s|^#||g" <<< "${parsed_csv[10]}")"
-    cost="${parsed_csv[2]}"
-    id="$(get_id "${raw_csv}")"
-    write_string "${work_dir}/dic.txt" "$(echo -e "${yomi}\t${id}\t${id}\t${cost}\t${tango}")"
-}
-
-convert_oneline_dic(){
-    local run=("$golang_binary" "$(get_iddef_path)" "$1")
-    #msg_info "Running ${run[*]}"
-    "${run[@]}"
-}
 
 get_id(){
     local target_rawcsv="$1" target_csv
