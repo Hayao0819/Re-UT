@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-current_dir="${current_dir-"$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"}"
-project_dir="$current_dir/.."
-export CHILD_MAX=5
+project_dir="${project_dir-"$(cd "$(dirname "${BASH_SOURCE[0]}")/../" && pwd)"}"
+
+#export CHILD_MAX=5
 
 check_tools(){
     local tools=("jq" "curl" "git" "nkf")
@@ -69,12 +69,13 @@ msg_error(){
 # make_workdir "$0"
 make_workdir(){
     local baseworkdir="${project_dir}/build"
-    local script_name="${1-""}"
+    local script_name
+    script_name="$(realpath "${1-""}")"
     [[ -n "$script_name" ]] || {
         msg_error "make_workdir: Missing argument"
         return 1
     }
-    script_name="$(basename "$script_name")"
+    script_name="$(basename "$(dirname "$script_name")")"
     local workdir="${baseworkdir}/${script_name}"
     mkdir -p "${workdir}"
     echo "${workdir}"
@@ -111,10 +112,15 @@ kata2hira(){
 }
 
 get_iddef(){
-    cat "$(download_file "$(make_workdir "$0")" "https://raw.githubusercontent.com/google/mozc/master/src/data/dictionary_oss/id.def")"
+    cat "$(get_iddef_path)"
+}
+
+get_iddef_path(){
+    download_file "$(make_workdir "${BASH_SOURCE[0]}")" "https://raw.githubusercontent.com/google/mozc/master/src/data/dictionary_oss/id.def"
 }
 
 write_string(){
-    local lockfile="$1" targetfile="$1" text="$2"
+    #local lockfile="$1" 
+    local targetfile="$1" text="$2"
     echo "$text" >> "$targetfile"
 }

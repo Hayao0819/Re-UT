@@ -2,13 +2,13 @@
 
 set -Eeuo pipefail
 
-current_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+project_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../" && pwd)"
 
-# shellcheck source=./common.sh
-source "${current_dir}/common.sh"
+# shellcheck source=../common.sh
+source "${project_dir}/src/common.sh"
 
-work_dir="$(make_workdir "$0")"
-original_csv=""
+work_dir="$(make_workdir "${BASH_SOURCE[0]}")"
+msg_info "Build directory is $work_dir"
 
 get_dict(){
     
@@ -62,12 +62,12 @@ convert_dic(){
             current_process=0
         fi
         current_process="$((current_process + 1))"
-        convert_oneline_dic "${raw_csv}" >> "${work_dir}/dic.txt" &
+        convert_oneline_dic "${raw_csv}" >> "${work_dir}/dic.txt"
     done < "${csv_path}"
 }
 
 # めちゃくちゃ遅いのでGoで書き直す
-convert_oneline_dic(){
+convert_oneline_dic_old(){
     local yomi tango raw_csv="$1" id cost
     local parsed_csv=()
     readarray -t parsed_csv < <(tr "," "\n" <<< "$raw_csv")
@@ -78,6 +78,14 @@ convert_oneline_dic(){
     write_string "${work_dir}/dic.txt" "$(echo -e "${yomi}\t${id}\t${id}\t${cost}\t${tango}")"
 }
 
+convert_oneline_dic(){
+    local execFile="${project_dir}/src/neologd/convert_oneline_dic/convert_oneline_dic"
+    [[ -e "$execFile" ]] || go build -o "$execFile" "${project_dir}/src/neologd/convert_oneline_dic/"*".go"
+    local run=("$execFile" "$(get_iddef_path)" "$1")
+    #msg_info "Running ${run[*]}"
+    "${run[@]}"
+}
+
 get_id(){
     local target_rawcsv="$1" target_csv
     target_csv="$(cut -d "," -f 5,6,7,8  <<< "$target_rawcsv")"
@@ -85,7 +93,12 @@ get_id(){
     get_iddef | grep -E "[0-9]* ${target_csv}.*" | cut -d " " -f 1 | head -n 1
 }
 
+remove_old_binary(){
+    rm -rf "${project_dir}/src/neologd/convert_oneline_dic/convert_oneline_dic"
+}
+
 main(){
+    remove_old_binary
     convert_dic "$(get_dict)"
 }
 
