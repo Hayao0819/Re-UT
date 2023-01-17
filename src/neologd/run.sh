@@ -10,6 +10,8 @@ source "${project_dir}/src/common.sh"
 work_dir="$(make_workdir "${BASH_SOURCE[0]}")"
 msg_info "Build directory is $work_dir"
 
+golang_binary="${work_dir}/convert_oneline_dic"
+
 get_dict(){
     
 
@@ -66,7 +68,8 @@ convert_dic(){
     done < "${csv_path}"
 }
 
-# めちゃくちゃ遅いのでGoで書き直す
+# ~~めちゃくちゃ遅いのでGoで書き直す~~
+# 書き直したけどやっぱり遅いので、convert_dicそのものを書き直して並列処理をGoでやらせます
 convert_oneline_dic_old(){
     local yomi tango raw_csv="$1" id cost
     local parsed_csv=()
@@ -79,9 +82,7 @@ convert_oneline_dic_old(){
 }
 
 convert_oneline_dic(){
-    local execFile="${project_dir}/src/neologd/convert_oneline_dic/convert_oneline_dic"
-    [[ -e "$execFile" ]] || go build -o "$execFile" "${project_dir}/src/neologd/convert_oneline_dic/"*".go"
-    local run=("$execFile" "$(get_iddef_path)" "$1")
+    local run=("$golang_binary" "$(get_iddef_path)" "$1")
     #msg_info "Running ${run[*]}"
     "${run[@]}"
 }
@@ -93,12 +94,13 @@ get_id(){
     get_iddef | grep -E "[0-9]* ${target_csv}.*" | cut -d " " -f 1 | head -n 1
 }
 
-remove_old_binary(){
-    rm -rf "${project_dir}/src/neologd/convert_oneline_dic/convert_oneline_dic"
+make_gobinary(){
+    rm -rf "${golang_binary}"
+    go build -o "$golang_binary" "${project_dir}/src/neologd/convert_oneline_dic/"*".go"
 }
 
 main(){
-    remove_old_binary
+    make_gobinary
     convert_dic "$(get_dict)"
 }
 
