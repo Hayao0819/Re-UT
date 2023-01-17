@@ -23,6 +23,12 @@ func convert_oneline_dic(iddefPath string, csvString string) string {
 	var cost int
 	var id int
 
+	if len(csv) < 11 {
+		fmt.Fprintln(os.Stderr, "Invalid csv format")
+		fmt.Fprintln(os.Stderr, csvString)
+		os.Exit(0)
+	}
+
 	yomi = kata2hira(csv[11])
 	tango = strings.ReplaceAll(csv[10], "#", "")
 	cost, err := strconv.Atoi(csv[2])
@@ -32,7 +38,7 @@ func convert_oneline_dic(iddefPath string, csvString string) string {
 	}
 	id = getId(iddef, csvString)
 
-	return fmt.Sprintf("%s\t%d\t%d\t%d\t%s\n", yomi, id, id, cost, tango)
+	return fmt.Sprintf("%s\t%d\t%d\t%d\t%s", yomi, id, id, cost, tango)
 }
 
 func textFileToArray(path string) []string {
