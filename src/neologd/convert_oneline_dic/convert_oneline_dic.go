@@ -9,11 +9,8 @@ import (
 	"strings"
 )
 
-// convert_oneline_dic <path of id.def> <csv>
-func convert_oneline_dic(iddefPath string, csvString string) string {
-	// Read id.def
-	iddef := textFileToArray(iddefPath)
-
+// convert_oneline_dic <id.def> <csv>
+func convert_oneline_dic(iddef []string, csvString string) (string, error) {
 	// Get csv
 	csv := strings.Split(csvString, ",")
 
@@ -26,7 +23,8 @@ func convert_oneline_dic(iddefPath string, csvString string) string {
 	if len(csv) < 11 {
 		fmt.Fprintln(os.Stderr, "Invalid csv format")
 		fmt.Fprintln(os.Stderr, csvString)
-		os.Exit(0)
+		//os.Exit(0)
+		return "", fmt.Errorf("Invalid_csv_format")
 	}
 
 	yomi = kata2hira(csv[11])
@@ -34,19 +32,26 @@ func convert_oneline_dic(iddefPath string, csvString string) string {
 	cost, err := strconv.Atoi(csv[2])
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Cannot convert cost to int")
-		os.Exit(1)
+		//os.Exit(1)
+		return "", err
 	}
-	id = getId(iddef, csvString)
+	id, err = getId(iddef, csvString)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Cannot get id")
+		return "", err
+		//os.Exit(1)
+	}
 
-	return fmt.Sprintf("%s\t%d\t%d\t%d\t%s", yomi, id, id, cost, tango)
+	return fmt.Sprintf("%s\t%d\t%d\t%d\t%s", yomi, id, id, cost, tango), nil
 }
 
-func textFileToArray(path string) []string {
+func textFileToArray(path string) ([]string, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Cannot open file: ", path)
-		//return nil
-		os.Exit(1)
+		//os.Exit(1)
+		return nil, err
+
 	}
 
 	defer file.Close()
@@ -63,10 +68,10 @@ func textFileToArray(path string) []string {
 		os.Exit(1)
 	}
 
-	return lines
+	return lines, nil
 }
 
-func getId(iddef []string, raw_csv string) int {
+func getId(iddef []string, raw_csv string) (int, error) {
 	csv := strings.Split(raw_csv, ",")
 	matchString := csv[4] + "," + csv[5] + "," + csv[6] + "," + csv[7]
 
@@ -75,12 +80,13 @@ func getId(iddef []string, raw_csv string) int {
 			id, err := strconv.Atoi(strings.Split(line, " ")[0])
 			if err != nil {
 				fmt.Fprintln(os.Stderr, "Cannot convert id to int")
-				os.Exit(1)
+				//os.Exit(1)
+				return -1, err
 			}
-			return id
+			return id, nil
 		}
 	}
-	return -1
+	return -1, fmt.Errorf("Cannot_find_id")
 }
 
 func check_regexp(reg, str string) bool {
@@ -102,5 +108,32 @@ func main(){
 	iddefPath := args[1]
 	csvString := args[2]
 
-	fmt.Println(convert_oneline_dic(iddefPath, csvString))
+	checkNkf()
+	err := convert_dic(iddefPath, csvString)
+	if err != nil {
+		os.Exit(1)
+	}
+}
+
+
+func convert_dic(iddefPath string, csvPath string) (error){
+
+	csv, csv_err := textFileToArray(csvPath)
+	iddef, iddef_err := textFileToArray(iddefPath)
+
+	if csv_err != nil || iddef_err != nil {
+		fmt.Fprintln(os.Stderr, "Cannot read file")
+		return fmt.Errorf("Cannot_read_file")
+	}
+
+	// Run
+	for _, line := range csv {
+		converted, err := convert_oneline_dic(iddef, line)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "Cannot convert line")
+			return err
+		}
+		fmt.Println(converted)
+	}
+	return nil
 }

@@ -10,7 +10,7 @@ source "${project_dir}/src/common.sh"
 work_dir="$(make_workdir "${BASH_SOURCE[0]}")"
 msg_info "Build directory is $work_dir"
 
-golang_binary="${work_dir}/convert_oneline_dic"
+golang_binary="${work_dir}/convert_dic"
 
 get_dict(){
     
@@ -57,13 +57,7 @@ get_dict(){
 
 convert_dic(){
     local csv_path="$1"
-    parallel -k -j 500% --progress "$golang_binary" "$(get_iddef_path)" {}  < "${csv_path}" > "${work_dir}/dic.txt"
-
-    #xargs -P5 -L1 -I{} "$golang_binary" "$(get_iddef_path)" "{}" < "${csv_path}" #> "${work_dir}/dic.txt"
-
-    #while read -r raw_csv; do
-    #    "$golang_binary" "$(get_iddef_path)" "${raw_csv}" >> "${work_dir}/dic.txt"
-    #done < "${csv_path}"
+    "$golang_binary" "$(get_iddef_path)" "${csv_path}" > "${work_dir}/dic.txt"
 }
 
 
@@ -76,7 +70,7 @@ get_id(){
 
 make_gobinary(){
     rm -rf "${golang_binary}"
-    go build -o "$golang_binary" "${project_dir}/src/neologd/convert_oneline_dic/"*".go"
+    go build -o "$golang_binary" "${project_dir}/src/neologd/convert_dic/"*".go"
 }
 
 main(){

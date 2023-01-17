@@ -17,7 +17,7 @@ func checkNkf(){
 }
 
 func kata2hira(s string) string {
-	checkNkf()
+	//checkNkf()
 	cmd := exec.Command("nkf", "-w", "--hiragana")
 	cmd.Stdin = strings.NewReader(s)
 	result, err := cmd.Output()
