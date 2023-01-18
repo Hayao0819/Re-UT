@@ -12,9 +12,9 @@ msg_info "Build directory is $work_dir"
 
 golang_binary="${work_dir}/convert_dic"
 
-get_dict(){
-    
 
+# 辞書の元データをダウンロードして、そのパスをstdoutに出力します
+get_dict(){
     # ファイル名を取得
     {
         local filelist_json=() filename url
@@ -55,6 +55,7 @@ get_dict(){
 
 }
 
+# convert_dic.goを実行して辞書を生成します
 convert_dic(){
     local csv_path="$1"
     msg_info "Converting dictionary..."
@@ -79,19 +80,11 @@ convert_dic(){
     wait
 }
 
-
-get_id(){
-    local target_rawcsv="$1" target_csv
-    target_csv="$(cut -d "," -f 5,6,7,8  <<< "$target_rawcsv")"
-
-    get_iddef | grep -E "[0-9]* ${target_csv}.*" | cut -d " " -f 1 | head -n 1
-}
-
 make_gobinary(){
     rm -rf "${golang_binary}"
     (
         cd "${project_dir}/src/neologd/convert_dic/" || exit 1
-        
+        msg_info "Building convert_dic.go..."
         go build -o "$golang_binary" "${project_dir}/src/neologd/convert_dic/"*".go"
     )
 }
