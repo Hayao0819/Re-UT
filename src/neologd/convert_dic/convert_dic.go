@@ -86,7 +86,7 @@ func getId(iddef []string, raw_csv string) (int, error) {
 func main(){
 	args := os.Args
 	if len(args) != 3 {
-		fmt.Fprintln(os.Stderr, "Usage: convert_oneline_dic <path of id.def> <csv>")
+		fmt.Fprintln(os.Stderr, "Usage: convert_dic <path of id.def> <csv>")
 		os.Exit(1)
 	}
 	iddefPath := args[1]
