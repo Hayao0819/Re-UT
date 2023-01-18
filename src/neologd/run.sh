@@ -57,7 +57,25 @@ get_dict(){
 
 convert_dic(){
     local csv_path="$1"
-    "$golang_binary" "$(get_iddef_path)" "${csv_path}" > "${work_dir}/dic.txt"
+    msg_info "Converting dictionary..."
+    rm -rf "${work_dir}/dic.txt"
+    #"$golang_binary" "$(get_iddef_path)" "${csv_path}" | tee "${work_dir}/dic.txt"
+    {
+        "$golang_binary" "$(get_iddef_path)" "${csv_path}" > "${work_dir}/dic.txt"
+    } &
+    
+    
+    while true; do
+        num_children="$(jobs | wc -l)"
+        if (( num_children == 0 )); then
+            break
+        else
+            echo -ne "\033[2K"
+            wc -l "${work_dir}/dic.txt" 2>/dev/null || continue
+            printf "\033[%dA" "1"
+        fi
+        sleep 1
+    done 
 }
 
 

@@ -7,7 +7,10 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 )
+
+const max_process = 5000
 
 // convert_oneline_dic <id.def> <csv>
 func convert_oneline_dic(iddef []string, csvString string) (string, error) {
@@ -23,23 +26,24 @@ func convert_oneline_dic(iddef []string, csvString string) (string, error) {
 	if len(csv) < 11 {
 		fmt.Fprintln(os.Stderr, "Invalid csv format")
 		fmt.Fprintln(os.Stderr, csvString)
-		//os.Exit(0)
 		return "", fmt.Errorf("Invalid_csv_format")
 	}
 
-	yomi = kata2hira(csv[11])
+	yomi, err := kata2hira(csv[11])
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Cannot convert katakana to hiragana")
+		return "", err
+	}
 	tango = strings.ReplaceAll(csv[10], "#", "")
-	cost, err := strconv.Atoi(csv[2])
+	cost, err = strconv.Atoi(csv[2])
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Cannot convert cost to int")
-		//os.Exit(1)
 		return "", err
 	}
 	id, err = getId(iddef, csvString)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Cannot get id")
 		return "", err
-		//os.Exit(1)
 	}
 
 	return fmt.Sprintf("%s\t%d\t%d\t%d\t%s", yomi, id, id, cost, tango), nil
@@ -49,7 +53,6 @@ func textFileToArray(path string) ([]string, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Cannot open file: ", path)
-		//os.Exit(1)
 		return nil, err
 
 	}
@@ -62,10 +65,9 @@ func textFileToArray(path string) ([]string, error) {
 		lines = append(lines, scanner.Text())
 	}
 
-	if scanner.Err() != nil {
+	if err := scanner.Err(); err != nil {
 		fmt.Fprintln(os.Stderr, "Cannot read file: ", path)
-		//return nil
-		os.Exit(1)
+		return nil, err
 	}
 
 	return lines, nil
@@ -80,7 +82,6 @@ func getId(iddef []string, raw_csv string) (int, error) {
 			id, err := strconv.Atoi(strings.Split(line, " ")[0])
 			if err != nil {
 				fmt.Fprintln(os.Stderr, "Cannot convert id to int")
-				//os.Exit(1)
 				return -1, err
 			}
 			return id, nil
@@ -91,11 +92,6 @@ func getId(iddef []string, raw_csv string) (int, error) {
 
 func check_regexp(reg, str string) bool {
 	result := regexp.MustCompile(reg).Match([]byte(str))
-	/*
-	fmt.Println(str)
-	fmt.Println(reg)
-	fmt.Println(result)
-	*/
 	return result
 }
 
@@ -108,9 +104,11 @@ func main(){
 	iddefPath := args[1]
 	csvString := args[2]
 
-	checkNkf()
+	_ = checkNkf()
+
 	err := convert_dic(iddefPath, csvString)
 	if err != nil {
+		fmt.Fprintln(os.Stderr, "Cannot convert dic")
 		os.Exit(1)
 	}
 }
@@ -126,14 +124,28 @@ func convert_dic(iddefPath string, csvPath string) (error){
 		return fmt.Errorf("Cannot_read_file")
 	}
 
-	// Run
+	wg := &sync.WaitGroup{}
+	
+	sem := make(chan struct{}, max_process)
+
 	for _, line := range csv {
-		converted, err := convert_oneline_dic(iddef, line)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, "Cannot convert line")
-			return err
-		}
-		fmt.Println(converted)
+		wg.Add(1)
+		sem <- struct{}{}
+
+		go func(wg *sync.WaitGroup, line string, iddef []string)() {
+			
+			converted, err := convert_oneline_dic(iddef, line)
+			if err != nil {
+				fmt.Fprintln(os.Stderr, "Cannot convert line")
+			}else{
+				fmt.Println(converted)
+			}
+
+			wg.Done()
+			<-sem
+		}(wg, line, iddef)
 	}
+
+	wg.Wait()
 	return nil
 }
