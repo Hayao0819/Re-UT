@@ -59,23 +59,24 @@ convert_dic(){
     local csv_path="$1"
     msg_info "Converting dictionary..."
     rm -rf "${work_dir}/dic.txt"
-    #"$golang_binary" "$(get_iddef_path)" "${csv_path}" | tee "${work_dir}/dic.txt"
     {
         "$golang_binary" "$(get_iddef_path)" "${csv_path}" > "${work_dir}/dic.txt"
     } &
     
     
     while true; do
-        num_children="$(jobs | wc -l)"
+        num_children="$(pgrep -P "$$" | wc -l)"
         if (( num_children == 0 )); then
             break
         else
             echo -ne "\033[2K"
             wc -l "${work_dir}/dic.txt" 2>/dev/null || continue
-            printf "\033[%dA" "1"
+            echo -ne "\033[1A"
         fi
         sleep 1
     done 
+
+    wait
 }
 
 
@@ -88,7 +89,11 @@ get_id(){
 
 make_gobinary(){
     rm -rf "${golang_binary}"
-    go build -o "$golang_binary" "${project_dir}/src/neologd/convert_dic/"*".go"
+    (
+        cd "${project_dir}/src/neologd/convert_dic/" || exit 1
+        
+        go build -o "$golang_binary" "${project_dir}/src/neologd/convert_dic/"*".go"
+    )
 }
 
 main(){
