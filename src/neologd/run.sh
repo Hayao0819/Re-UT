@@ -78,6 +78,7 @@ convert_dic(){
     done 
 
     wait
+    return 0
 }
 
 make_gobinary(){
