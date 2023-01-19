@@ -66,9 +66,9 @@ convert_dic(){
     
     
     while true; do
-        num_children="$(pgrep -P "$$" | wc -l)"
+        num_children="$(pgrep -P "$$" | wc -l)" || true
         if (( num_children == 0 )); then
-            break
+            return 0
         else
             echo -ne "\033[2K"
             wc -l "${work_dir}/dic.txt" 2>/dev/null || continue
@@ -98,3 +98,4 @@ main(){
 }
 
 main
+
