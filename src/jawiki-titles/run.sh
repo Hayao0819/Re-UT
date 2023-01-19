@@ -22,6 +22,7 @@ get_dict(){
 }
 
 main(){
+    check_tools
     get_dict
 }
 

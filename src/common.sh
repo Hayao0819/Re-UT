@@ -5,11 +5,13 @@ project_dir="${project_dir-"$(cd "$(dirname "${BASH_SOURCE[0]}")/../" && pwd)"}"
 #export CHILD_MAX=5
 
 check_tools(){
-    local tools=("jq" "curl" "git" "nkf")
+    local tools=("jq" "curl" "git" "nkf" "7z")
     for tool in "${tools[@]}"; do
         if ! command -v "${tool}" >/dev/null 2>&1; then
-            echo "Error: ${tool} is not installed." >&2
+            msg_error "${tool} is not installed."
             exit 1
+        else
+            msg_info "${tool} is installed."
         fi
     done
 }

@@ -46,6 +46,7 @@ make_gobinary(){
 }
 
 main(){
+    check_tools
     make_gobinary
     convert_dic "$(get_dict)"
 }
