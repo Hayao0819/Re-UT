@@ -19,7 +19,7 @@
 
 - [ ] jawiki-titles
 - [ ] jawiki-articles
-- [ ] edict2
+- [x] edict2
 
 上記3つはGPLとの互換性がないため、他の辞書と同梱して配布することができません
 
