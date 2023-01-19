@@ -82,12 +82,14 @@ convert_dic(){
 }
 
 make_gobinary(){
-    rm -rf "${golang_binary}"
-    (
-        cd "${project_dir}/src/neologd/convert_dic/" || exit 1
-        msg_info "Building convert_dic.go..."
-        go build -o "$golang_binary" "${project_dir}/src/neologd/convert_dic/"*".go"
-    )
+    #rm -rf "${golang_binary}"
+    #(
+    #    cd "${project_dir}/src/neologd/convert_dic/" || exit 1
+    #    msg_info "Building convert_dic.go..."
+    #    go build -o "$golang_binary" "${project_dir}/src/neologd/convert_dic/"*".go"
+    #)
+
+    build_go_tool "${project_dir}/src/neologd/convert_dic/" "${golang_binary}"
 }
 
 main(){

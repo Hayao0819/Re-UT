@@ -124,3 +124,20 @@ write_string(){
     local targetfile="$1" text="$2"
     echo "$text" >> "$targetfile"
 }
+
+build_go_tool(){
+    local tool_dir="$1" outpath="$2"
+    rm -rf "$outpath"
+    mkdir -p "$(dirname "$outpath")"
+    (
+        cd "$tool_dir" || {
+            msg_error "build_go_tool: Failed to cd $tool_dir"
+            return 1
+        }
+        msg_info "Building $tool_dir to $outpath..."
+        go build -o "$outpath" ./*.go || {
+            msg_error "build_go_tool: Failed to build $tool_dir"
+            return 1
+        }
+    )
+}
