@@ -20,6 +20,7 @@
 - [ ] jawiki-titles
 - [ ] jawiki-articles
 - [ ] niconico IME (実装しても法的な問題がないかどうか確認中です)
+- [ ] dic-nico-intersection-pixiv (niconico IMEと同じく法的な問題を確認中)
 - [ ] edict2
 
 ### License
