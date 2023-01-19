@@ -10,7 +10,7 @@ work_dir="$project_dir/build/"
 mkdir -p "$work_dir"
 
 ## 現在ビルド可能な辞書の一覧
-open_dictlist=("skkdic" "neologd")
+open_dictlist=("skkdic" "neologd" "edict2")
 all_dictlist=("${open_dictlist[@]}" "jawiki")
 
 ## ビルド対象の辞書の一覧
@@ -26,6 +26,7 @@ usage_text(){
     echo "    --skk     skk辞書をビルド"
     #echo "    --jawiki  jawiki辞書をビルド"
     echo "    --neologd neologd辞書をビルド"
+    #echo "    --edict2  edict2辞書をビルド"
     echo
     echo "Other options:"
     #echo "    --mozc    Mozcのビルドも行います"
@@ -42,6 +43,10 @@ while (( "$#" != 0 )); do
             ;;
         "--neologd")
             target_dictlist+=("neologd")
+            shift 1
+            ;;
+        "--edict2")
+            target_dictlist+=("edict2")
             shift 1
             ;;
         "--all")
