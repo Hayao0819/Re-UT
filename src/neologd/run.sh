@@ -64,13 +64,10 @@ convert_dic(){
         "$golang_binary" "$(get_iddef_path)" "${csv_path}" > "${work_dir}/dict.txt"
     } &
     
-    
     while true; do
-        num_children="$(pgrep -P "$$" | wc -l)" || true
-        if (( num_children == 0 )); then
+        if [[ -z "$(pgrep -P "$$")" ]]; then
             return 0
         else
-            echo -ne "\033[2K"
             wc -l "${work_dir}/dict.txt" 2>/dev/null || continue
             echo -ne "\033[1A"
         fi
