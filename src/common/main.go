@@ -48,6 +48,20 @@ func TextFileToArray(path string) ([]string, error) {
 	return lines, nil
 }
 
+func RemoveDeplication(org_array []string) []string {
+	mp := make(map[string]bool)
+	uniq := []string{}
+
+	for _, item := range org_array {
+		if !mp[item] {
+			mp[item] = true
+			uniq = append(uniq, item)
+		}
+	}
+	return uniq
+}
+
+
 func MakeDictLine(yomi string, tango string, id int, cost int) string {
 	return fmt.Sprintf("%s\t%d\t%d\t%d\t%s", yomi, id, id, cost, tango)
 }
