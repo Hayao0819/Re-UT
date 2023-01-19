@@ -33,12 +33,15 @@ func convert_oneline_dic(iddef []string, csvString string) (string, error) {
 	yomi = kanaconv.KatakanaToHiragana(csv[11])
 	tango = strings.ReplaceAll(csv[10], "#", "")
 	cost, _ = strconv.Atoi(csv[2])
-	id, err = common.GetId(iddef, csvString)
+
+	// Get id
+	matchString := csv[4] + "," + csv[5] + "," + csv[6] + "," + csv[7]
+	id, err = common.GetId(iddef, matchString)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Cannot get id")
 		return "", err
 	}
-	//return fmt.Sprintf("%s\t%d\t%d\t%d\t%s", yomi, id, id, cost, tango), nil
+
 	return common.MakeDictLine(yomi, tango, id, cost), nil
 }
 
