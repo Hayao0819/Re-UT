@@ -116,7 +116,7 @@ get_iddef(){
 }
 
 get_iddef_path(){
-    download_file "$(make_workdir "${BASH_SOURCE[0]}")" "https://raw.githubusercontent.com/google/mozc/master/src/data/dictionary_oss/id.def"
+    download_file "${project_dir}/build/" "https://raw.githubusercontent.com/google/mozc/master/src/data/dictionary_oss/id.def"
 }
 
 write_string(){
