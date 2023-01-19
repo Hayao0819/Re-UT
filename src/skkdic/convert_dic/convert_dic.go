@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"fmt"
+	common "github.com/Hayao0819/Re-UT/common"
 )
 
 func main() {

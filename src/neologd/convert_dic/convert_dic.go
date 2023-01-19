@@ -1,14 +1,13 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"os"
-	//"regexp"
 	"strconv"
 	"strings"
 	"sync"
 	"github.com/miiton/kanaconv"
+	common "github.com/Hayao0819/Re-UT/common"
 )
 
 const max_process = 1000
@@ -34,52 +33,12 @@ func convert_oneline_dic(iddef []string, csvString string) (string, error) {
 	yomi = kanaconv.KatakanaToHiragana(csv[11])
 	tango = strings.ReplaceAll(csv[10], "#", "")
 	cost, _ = strconv.Atoi(csv[2])
-	id, err = getId(iddef, csvString)
+	id, err = common.GetId(iddef, csvString)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Cannot get id")
 		return "", err
 	}
 	return fmt.Sprintf("%s\t%d\t%d\t%d\t%s", yomi, id, id, cost, tango), nil
-}
-
-func textFileToArray(path string) ([]string, error) {
-	file, err := os.Open(path)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "Cannot open file: ", path)
-		return nil, err
-	}
-
-	defer file.Close()
-
-	lines := make([]string, 0, 3000)
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
-	}
-
-	if err := scanner.Err(); err != nil {
-		fmt.Fprintln(os.Stderr, "Cannot read file: ", path)
-		return nil, err
-	}
-
-	return lines, nil
-}
-
-func getId(iddef []string, raw_csv string) (int, error) {
-	csv := strings.Split(raw_csv, ",")
-	matchString := csv[4] + "," + csv[5] + "," + csv[6] + "," + csv[7]
-
-	for _, line := range iddef {
-		if strings.Contains(strings.Split(line, " ")[1], matchString) {
-			id, err := strconv.Atoi(strings.Split(line, " ")[0])
-			if err != nil {
-				fmt.Fprintln(os.Stderr, "Cannot convert id to int")
-				return -1, err
-			}
-			return id, nil
-		}
-	}
-	return -1, fmt.Errorf("Cannot_find_id")
 }
 
 
@@ -101,9 +60,8 @@ func main(){
 
 
 func convert_dic(iddefPath string, csvPath string) (error){
-
-	csv, csv_err := textFileToArray(csvPath)
-	iddef, iddef_err := textFileToArray(iddefPath)
+	csv, csv_err := common.TextFileToArray(csvPath)
+	iddef, iddef_err := common.TextFileToArray(iddefPath)
 
 	if csv_err != nil || iddef_err != nil {
 		fmt.Fprintln(os.Stderr, "Cannot read file")
