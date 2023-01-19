@@ -6,15 +6,21 @@
 
 ### Todo
 
-- [ ] jawiki-titles
-- [ ] jawiki-articles
+#### 二次配布OK
+
 - [ ] alt-cannadic
 - [ ] chimei
-- [ ] edict2
+- [x] neologd
+- [x] skkdic
 - [ ] jinmei-ut
-- [ ] neologd
-- [ ] skkdic
 - [ ] sudachi dict
+
+#### 二次配布NG
+
+- [ ] jawiki-titles
+- [ ] jawiki-articles
+- [ ] niconico IME (実装しても法的な問題がないかどうか確認中です)
+- [ ] edict2
 
 ### License
 
