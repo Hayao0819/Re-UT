@@ -8,6 +8,8 @@ project_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../" && pwd)"
 source "${project_dir}/src/common.sh"
 work_dir="$(make_workdir "${BASH_SOURCE[0]}")"
 
+golang_binary="${work_dir}/convert_dic"
+
 get_dict(){
     local downloaded_file 
     local url="https://skk-dev.github.io/dict/SKK-JISYO.L.gz"
@@ -40,10 +42,16 @@ convert_dic(){
     local filtered_file="${basedic_path}.filtered"
     grep -vE "[a-zA-Z]" "$basedic_path" > "$filtered_file"
 
-    
+    msg_info "Converting to mozc format..."
+    "${golang_binary}" "$(get_iddef_path)" "$filtered_file" > "${work_dir}/dict.txt"
+}
+
+make_gobinary(){
+    build_go_tool "${project_dir}/src/skkdic/convert_dic" "$golang_binary"
 }
 
 main(){
+    make_gobinary
     convert_dic "$(get_dict)"
 }
 
