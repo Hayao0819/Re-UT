@@ -59,9 +59,9 @@ get_dict(){
 convert_dic(){
     local csv_path="$1"
     msg_info "Converting dictionary..."
-    rm -rf "${work_dir}/dic.txt"
+    rm -rf "${work_dir}/dict.txt"
     {
-        "$golang_binary" "$(get_iddef_path)" "${csv_path}" > "${work_dir}/dic.txt"
+        "$golang_binary" "$(get_iddef_path)" "${csv_path}" > "${work_dir}/dict.txt"
     } &
     
     
@@ -71,7 +71,7 @@ convert_dic(){
             return 0
         else
             echo -ne "\033[2K"
-            wc -l "${work_dir}/dic.txt" 2>/dev/null || continue
+            wc -l "${work_dir}/dict.txt" 2>/dev/null || continue
             echo -ne "\033[1A"
         fi
         sleep 1
@@ -82,13 +82,6 @@ convert_dic(){
 }
 
 make_gobinary(){
-    #rm -rf "${golang_binary}"
-    #(
-    #    cd "${project_dir}/src/neologd/convert_dic/" || exit 1
-    #    msg_info "Building convert_dic.go..."
-    #    go build -o "$golang_binary" "${project_dir}/src/neologd/convert_dic/"*".go"
-    #)
-
     build_go_tool "${project_dir}/src/neologd/convert_dic/" "${golang_binary}"
 }
 
