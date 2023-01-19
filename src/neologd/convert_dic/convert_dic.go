@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-	"github.com/miiton/kanaconv"
 	common "github.com/Hayao0819/Re-UT/common"
 )
 
@@ -30,7 +29,7 @@ func convert_oneline_dic(iddef []string, csvString string) (string, error) {
 		return "", fmt.Errorf("Invalid_csv_format")
 	}
 
-	yomi = kanaconv.KatakanaToHiragana(csv[11])
+	yomi = common.Kata2Hira(csv[11])
 	tango = strings.ReplaceAll(csv[10], "#", "")
 	cost, _ = strconv.Atoi(csv[2])
 

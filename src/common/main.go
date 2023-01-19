@@ -6,7 +6,12 @@ import (
 	"strconv"
 	"strings"
 	"bufio"
+	"github.com/miiton/kanaconv"
 )
+
+func Kata2Hira(str string) string {
+	return kanaconv.KatakanaToHiragana(str)
+}
 
 func GetId(iddef []string, match string) (int, error) {
 	for _, line := range iddef {
