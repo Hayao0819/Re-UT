@@ -38,7 +38,8 @@ func convert_oneline_dic(iddef []string, csvString string) (string, error) {
 		fmt.Fprintln(os.Stderr, "Cannot get id")
 		return "", err
 	}
-	return fmt.Sprintf("%s\t%d\t%d\t%d\t%s", yomi, id, id, cost, tango), nil
+	//return fmt.Sprintf("%s\t%d\t%d\t%d\t%s", yomi, id, id, cost, tango), nil
+	return common.MakeDictLine(yomi, tango, id, cost), nil
 }
 
 

@@ -47,3 +47,7 @@ func TextFileToArray(path string) ([]string, error) {
 
 	return lines, nil
 }
+
+func MakeDictLine(yomi string, tango string, id int, cost int) string {
+	return fmt.Sprintf("%s\t%d\t%d\t%d\t%s", yomi, id, id, cost, tango)
+}
