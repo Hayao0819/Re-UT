@@ -38,15 +38,19 @@ while (( "$#" != 0 )); do
     case "$1" in
         "--skk")
             target_dictlist+=("skkdic")
+            shift 1
             ;;
         "--neologd")
             target_dictlist+=("neologd")
+            shift 1
             ;;
         "--all")
             target_dictlist=("${all_dictlist[@]}")
+            shift 1
             ;;
         "--open")
             target_dictlist=("${open_dictlist[@]}")
+            shift 1
             ;;
         "--help")
             usage_text
