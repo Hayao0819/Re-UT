@@ -9,8 +9,6 @@ import (
 	common "github.com/Hayao0819/Re-UT/common"
 )
 
-const max_process = 1000
-
 // convert_oneline_dic <id.def> <csv>
 func convert_oneline_dic(iddef []string, csvString string) (string, error) {
 	// Get csv
@@ -73,12 +71,9 @@ func convert_dic(iddefPath string, csvPath string) (error){
 
 	wg := &sync.WaitGroup{}
 	
-	sem := make(chan struct{}, max_process)
 
 	for _, line := range csv {
 		wg.Add(1)
-		sem <- struct{}{}
-
 		go func(wg *sync.WaitGroup, line string, iddef []string)() {
 			converted, err := convert_oneline_dic(iddef, line)
 			if err != nil {
@@ -87,7 +82,6 @@ func convert_dic(iddefPath string, csvPath string) (error){
 				fmt.Println(converted)
 			}
 			wg.Done()
-			<-sem
 		}(wg, line, iddef)
 	}
 

@@ -63,12 +63,17 @@ convert_dic(){
     {
         "$golang_binary" "$(get_iddef_path)" "${csv_path}" > "${work_dir}/dict.txt"
     } &
-    
+    local progress=0 before=0 diff=() sum
     while true; do
         if [[ -z "$(pgrep -P "$$")" ]]; then
             return 0
         else
-            wc -l "${work_dir}/dict.txt" 2>/dev/null || continue
+            before="${progress}"
+            progress="$(wc -l < "${work_dir}/dict.txt" 2>/dev/null)"
+            diff+=("$((progress - before))")
+            sum=$(IFS=+; echo "$((${diff[*]}))")
+            avg=$((  sum / ${#diff[@]}  ))
+            echo "Progress: ${progress} lines ($avg/s)"
             echo -ne "\033[1A"
         fi
         sleep 1
